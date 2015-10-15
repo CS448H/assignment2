@@ -34,7 +34,7 @@ The methods like `image:shift()` or `image:constant()` each have a line:
     result.tree = error("NYI - your IR goes here")
     
 In part one you should fill in these lines with your own code that implements the IR.
-Hint: this IR will look very similar to the one in [example-2.t](http://cs448h.stanford.edu/example-2.t). You may want to implement a function `print_ir()` that can output your IR in a nice way for debugging befor moving on to other parts.
+Hint: this IR will look very similar to the one in [example-2.t](http://cs448h.stanford.edu/example-2.t). You may want to implement a function `print_ir()` that can output your IR in a nice way for debugging before moving on to other parts.
 
 ## 2. Strategy: recompute
 
@@ -108,14 +108,14 @@ Our last strategy blends the two approaches from above. We still want to calcula
          var blur_x : float[(BLOCKSIZE+1)*(BLOCKSIZE+1)]
          for each pixel (x,y) in blur_x:
            blur_x(x,y) = .33*(input_block(x-1,y) + input_block(x,y) + input_block(x+1,y))
-         for each pixel (e,y) in output:
+         for each pixel (x,y) in output:
            output(x,y) = .33*(blur_x(x,y-1) + blur_x(x,y) + blur_x(x,y+1))
       end
     end 
 
 A couple things to notice. First, there is an output loop over blocks, with the temporaries only existing inside a block. Second, the temporaries are basically the same as before, except for the fact that we load the input directly into a temporary. Finally, note that the size of the temporaries for `blur_x` and `input_block` are expanded, centered around the block of the output being computed. This is because later things in the pipeline access shifted pixels from earlier things and we must ensure we calculated enough of the temporary so those pixels are available. 
 
-Implement the function `compile_ir_blocked(tree)`. Since the assignment of temporaries is similar to the previous section, you might consider re-using it across both functions. To correctly calculate the output, you will also need to calculate how much to expand each temporary block. This is a property of the shifted accesses and can be calculated as a pass over the IR. To keep indexing arithmetic simple, you can represent this expansion conservatively as a single integer `maxstencil` that indicates how much to expand the block of a temporary, keeping it square centered around the output block. You should also experiment with different block sizes to find one that works best.
+Implement the function `compile_ir_blocked(tree)`. Since the assignment of temporaries is similar to the previous section, you might consider re-using it across both functions. To correctly calculate the output, you will also need to calculate how much to expand each temporary block. This is a property of the shifted accesses and can be calculated as a pass over the IR. To keep indexing arithmetic simple, you can represent this expansion conservatively as a single integer `maxstencil` that indicates how much to expand the block of a temporary, keeping it square and centered around the output block. You should also experiment with different block sizes to find one that works best.
 
 Run, measure, and test your code. Use all three input examples.
 
@@ -125,7 +125,7 @@ Run, measure, and test your code. Use all three input examples.
 * What block size worked best for you? Why might it run slower if the block was smaller or bigger than that?
 * With blocks having different sizes and starting locations in image space, representing indices can quickly become tricky. The block size also probably doesn't evenly divide the image. How did you design the indexing math to manage this complexity?
 * What throughputs did you measure for the examples? How do they compare to previous examples? Is this what you expected? Why?
-* If we keep increasing the number of iterations in the integrated blur example, is there a point at which you expect one strategy to win out over another? Explain.
+* If we keep increasing the number of iterations in the interated blur example, is there a point at which you expect one strategy to win out over another? Explain.
 * Unlike previous stages we loaded the input into a temporary block. Why is this a good/bad idea?
 
 ## 5. Writeup
@@ -136,9 +136,9 @@ In addition to answers to the questions posed in parts 2,3, and 4, we'd like you
 
 If you want to do more, here are some ideas we will give extra credit for:
 
-* Improve boundary handling: one source of overhead is the `load_data` function which has to handle when we are on an image boundary correct. Come up with a way to reduce the number of times boundaries need to be checked. What is your approach to boundaries and how much performance was gained?
+* Improve boundary handling: one source of overhead is the `load_data` function which has to handle when we are on an image boundary correctly. Come up with a way to reduce the number of times boundaries need to be checked. What is your approach to boundaries and how much performance was gained?
 * Multi-threading: use the `pthreads` library (see [pthreads.t](https://github.com/zdevito/terra/blob/master/tests/pthreads.t)) to multi-thread computation of the image. How much performance do you gain doing this?
-* Vectorization: x86 machines have vector instructions (AVX or SSE). Change your code use these instructions by computing multiple pixels at once.  See [simplevec.t](https://github.com/zdevito/terra/blob/master/tests/simplevec.t) for an example of using vectors in Terra. By default, vector loads must be aligned to the size of the vector. If you need to use unaligned stores and loads you can use the code below. How much performance do you gain doing this? How did you handle boundary conditions 
+* Vectorization: x86 machines have vector instructions (AVX or SSE). Change your code use these instructions by computing multiple pixels at once.  See [simplevec.t](https://github.com/zdevito/terra/blob/master/tests/simplevec.t) for an example of using vectors in Terra. By default, vector loads must be aligned to the size of the vector. If you need to use unaligned stores and loads you can use the code below. How much performance do you gain doing this? How did you handle boundary conditions?
 
 Submit extra-credit as a separate `img.t` file, so that we can still test your standard version, and explain what you tried to do.
 
