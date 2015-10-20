@@ -75,7 +75,7 @@ P6
 ]]
 
 local function savepbm(image,filename)
-    local F = assert(io.open(filename,"w"), "file could not be opened for writing")
+    local F = assert(io.open(filename,"wb"), "file could not be opened for writing")
     F:write(string.format(headerpattern, image.width, image.height, 255))
     local function writeNumber(v)
         assert(type(v) == "number","NaN?")
