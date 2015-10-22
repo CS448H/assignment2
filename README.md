@@ -62,7 +62,7 @@ Implement the function `compile_ir_recompute(tree)` that takes your IR node and 
 
 Run this strategy on two of input examples, `blur.t` and `iterated-blur.t` and record the speed (MP/s) for the large image (`giraffebw.pbm`):
 
-    $ terra blur.t recompute giraffebw.bpm giraffebw_blur_recompute.pbm
+    $ terra blur.t recompute giraffebw.pbm giraffebw_blur_recompute.pbm
     
 You should use the small test image `test.pbm` to check that you algorithm is actually producing the right result (we've provided some references to check against).
 
